@@ -1,0 +1,10 @@
+<h3>ADMINPANEL:</h3>
+{% if model_list %}
+    <ul>
+        {% for model in model_list %}
+            <li><a href="/adminpanel/{{ model.id }}/">{{ model.model_name }}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No models are available</p>
+{% endif %}
