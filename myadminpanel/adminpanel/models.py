@@ -3,9 +3,15 @@ from django.db import models
 
 class MyAdminPanel(models.Model):
     model_name = models.CharField(default='', blank=True, max_length=100)
+    app_name = models.CharField(default='', blank=True, max_length=100)
 
     def __str__(self):
         return self.model_name
+
+    def save(self, *args, **kwargs):
+        self.model_name = self.model_name.lower()
+        self.app_name = self.app_name.lower()
+        return super(MyAdminPanel, self).save(*args, **kwargs)
 
 
 class Author(models.Model):

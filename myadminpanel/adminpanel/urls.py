@@ -1,7 +1,9 @@
 from django.urls import path
 from . import views
 
+
+app_name = 'adminpanel'
 urlpatterns = [
     path('', views.index, name='index'),
-    path('int:myadminpanel_id/', views.add_model, name='add_model'),
+    path('add_model/', views.add_model, name='add_model'),
 ]

@@ -1,0 +1,5 @@
+<form action="{% url 'adminpanel:add_model' %}" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <button type="submit">Add</button>
+</form>

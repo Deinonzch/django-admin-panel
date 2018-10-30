@@ -1,10 +1,18 @@
-<h3>ADMINPANEL:</h3>
 {% if model_list %}
-    <ul>
-        {% for model in model_list %}
-            <li><a href="/adminpanel/{{ model.id }}/">{{ model.model_name }}</a></li>
-        {% endfor %}
-    </ul>
+    {% for app in app_list %}
+        <h3>{{ app.app_name }}</h3>
+            <ul>
+                {% for model in model_list %}
+                    {% if model.app_name == app.app_name %}
+                        <li><a href="{% url 'adminpanel:index' %}">{{ model.model_name }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+    {% endfor %}
 {% else %}
     <p>No models are available</p>
 {% endif %}
+<form action="{% url 'adminpanel:add_model' %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Add</button>
+</form>
