@@ -1,13 +1,14 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
 from .models import MyAdminPanel
 from .forms import AdminModelForm
-from django.urls import reverse
+from django.urls import reverse_lazy
 from django.db import connection
 from django.views import generic
-from django.apps import apps
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 
+@permission_required('adminpanel.can_view')
 def index(request):
     app_list = MyAdminPanel.objects.values('app_name').distinct()
     model_list = MyAdminPanel.objects.order_by('app_name')
@@ -15,6 +16,7 @@ def index(request):
     return render(request, 'adminpanel/index.html', context)
 
 
+@permission_required('adminpanel.can_add')
 def add_model(request):
     form = AdminModelForm()
     if request.method == 'POST':
@@ -38,10 +40,11 @@ def add_model(request):
     return render(request, 'adminpanel/add_model.html', {'form': form})
 
 
-class ModelView(generic.ListView):
+class ModelView(PermissionRequiredMixin, generic.ListView):
     model = MyAdminPanel
     template_name = 'adminpanel/view_model.html'
     context_object_name = 'objects_list'
+    permission_required = 'polls.can_view'
 
     def get_queryset(self, *args, **kwargs):
         return self.model.get_model(self.kwargs.get('app_name'), self.kwargs.get('model_name')).objects.order_by('pk')
@@ -56,10 +59,11 @@ class ModelView(generic.ListView):
         return context
 
 
-class CreateObjectView(generic.CreateView):
+class CreateObjectView(PermissionRequiredMixin, generic.CreateView):
     model = MyAdminPanel
     fields = '__all__'
     template_name = 'adminpanel/createview_model.html'
+    permission_required = 'polls.can_create_object'
 
     def get_form(self, form_class=None, **kwargs):
         self.model = self.model.get_model(self.kwargs.get('app_name'), self.kwargs.get('model_name'))
@@ -68,13 +72,48 @@ class CreateObjectView(generic.CreateView):
         return form
 
 
-class UpdateObjectView(generic.UpdateView):
+class UpdateObjectView(PermissionRequiredMixin, generic.UpdateView):
     model = MyAdminPanel
     fields = '__all__'
     template_name = 'adminpanel/updateview_model.html'
+    permission_required = 'polls.can_update_object'
 
     def get_form(self, form_class=None, **kwargs):
         self.model = self.model.get_model(self.kwargs.get('app_name'), self.kwargs.get('model_name'))
         form = super(UpdateObjectView, self).get_form(form_class)  # instantiate using parent
         form.fields.queryset = self.model.objects.all()
         return form
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdateObjectView, self).get_context_data(**kwargs)
+        context['object'] = self.model.objects.filter(id=self.kwargs.get('object_id'))
+        context['model_id'] = self.kwargs.get('pk')
+        context['model_name'] = self.kwargs.get('model_name')
+        context['model_app'] = self.kwargs.get('app_name')
+        print(self.kwargs.get('object_id'))
+        return context
+
+    def get_object(self, queryset=None, **kwargs):
+        print(self.model.objects.get(id=self.kwargs['pk']))
+        obj = self.model.objects.get(id=self.kwargs['pk'])
+        return obj
+
+
+
+class DeleteObjectView(PermissionRequiredMixin, generic.DeleteView):
+    model = MyAdminPanel
+    fields = '__all__'
+    template_name = 'adminpanel/deleteview_model.html'
+    success_url = reverse_lazy('list')
+    permission_required = 'polls.can_delete_object'
+
+    def get_context_data(self, **kwargs):
+        context = super(DeleteObjectView, self).get_context_data(**kwargs)
+        context['object'] = self.model.get_model(self.kwargs.get('app_name'), self.kwargs.get('model_name'))\
+            .objects.filtr(id=self.kwargs.get('object_id'))
+        context['model_id'] = self.kwargs.get('pk')
+        context['model_name'] = self.kwargs.get('model_name')
+        context['model_app'] = self.kwargs.get('app_name')
+        print(self.kwargs)
+        print('sgadgrgdvzd')
+        return context
