@@ -66,3 +66,15 @@ class CreateObjectView(generic.CreateView):
         form = super(CreateObjectView, self).get_form(form_class)  # instantiate using parent
         form.fields.queryset = self.model.objects.all()
         return form
+
+
+class UpdateObjectView(generic.UpdateView):
+    model = MyAdminPanel
+    fields = '__all__'
+    template_name = 'adminpanel/updateview_model.html'
+
+    def get_form(self, form_class=None, **kwargs):
+        self.model = self.model.get_model(self.kwargs.get('app_name'), self.kwargs.get('model_name'))
+        form = super(UpdateObjectView, self).get_form(form_class)  # instantiate using parent
+        form.fields.queryset = self.model.objects.all()
+        return form

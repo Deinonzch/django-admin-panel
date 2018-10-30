@@ -1,7 +1,7 @@
 {% if objects_list %}
     <ul>
         {% for object in objects_list %}
-            <li><a>{{ object }}</a></li>
+            <li><a href="{% url 'adminpanel:updateview_model' model_id model_app model_name %}">{{ object }}</a></li>
         {% endfor %}
     </ul>
 {% else %}
