@@ -5,6 +5,7 @@ from .forms import AdminModelForm
 from django.urls import reverse
 from django.db import connection
 from django.views import generic
+from django.apps import apps
 
 
 def index(request):
@@ -35,3 +36,12 @@ def add_model(request):
             print(form.errors)
 
     return render(request, 'adminpanel/add_model.html', {'form': form})
+
+
+class ModelView(generic.ListView):
+    model = MyAdminPanel
+    template_name = 'adminpanel/view_model.html'
+    context_object_name = 'objects_list'
+
+    def get_queryset(self, *args, **kwargs):
+        return self.model.get_model(self.kwargs.get('app_name'), self.kwargs.get('model_name')).objects.order_by('pk')

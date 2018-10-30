@@ -1,9 +1,10 @@
 from django.db import models
+from django.apps import apps
 
 
 class MyAdminPanel(models.Model):
-    model_name = models.CharField(default='', blank=True, max_length=100)
-    app_name = models.CharField(default='', blank=True, max_length=100)
+    model_name = models.CharField(default='', blank=False, max_length=100)
+    app_name = models.CharField(default='', blank=False, max_length=100)
 
     def __str__(self):
         return self.model_name
@@ -12,6 +13,10 @@ class MyAdminPanel(models.Model):
         self.model_name = self.model_name.lower()
         self.app_name = self.app_name.lower()
         return super(MyAdminPanel, self).save(*args, **kwargs)
+
+    @staticmethod
+    def get_model(app, model):
+        return apps.get_model(app, model)
 
 
 class Author(models.Model):
