@@ -45,3 +45,24 @@ class ModelView(generic.ListView):
 
     def get_queryset(self, *args, **kwargs):
         return self.model.get_model(self.kwargs.get('app_name'), self.kwargs.get('model_name')).objects.order_by('pk')
+
+    def get_context_data(self, **kwargs):
+        context = super(ModelView, self).get_context_data(**kwargs)
+        context['objects_list'] = self.model.get_model(self.kwargs.get('app_name'), self.kwargs.get('model_name')).objects.order_by('pk')
+        context['model_id'] = self.kwargs.get('pk')
+        context['model_name'] = self.kwargs.get('model_name')
+        context['model_app'] = self.kwargs.get('app_name')
+        print(self.kwargs.get('app_name'))
+        return context
+
+
+class CreateObjectView(generic.CreateView):
+    model = MyAdminPanel
+    fields = '__all__'
+    template_name = 'adminpanel/createview_model.html'
+
+    def get_form(self, form_class=None, **kwargs):
+        self.model = self.model.get_model(self.kwargs.get('app_name'), self.kwargs.get('model_name'))
+        form = super(CreateObjectView, self).get_form(form_class)  # instantiate using parent
+        form.fields.queryset = self.model.objects.all()
+        return form

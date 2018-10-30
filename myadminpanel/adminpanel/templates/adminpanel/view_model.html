@@ -7,3 +7,7 @@
 {% else %}
     <p>No models are available</p>
 {% endif %}
+<form action="{% url 'adminpanel:createview_model' model_id model_app model_name %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Add</button>
+</form>
