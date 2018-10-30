@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import MyAdminPanel
 from .forms import AdminModelForm
 from django.urls import reverse_lazy
@@ -55,7 +55,6 @@ class ModelView(PermissionRequiredMixin, generic.ListView):
         context['model_id'] = self.kwargs.get('pk')
         context['model_name'] = self.kwargs.get('model_name')
         context['model_app'] = self.kwargs.get('app_name')
-        print(self.kwargs.get('app_name'))
         return context
 
 
@@ -84,36 +83,19 @@ class UpdateObjectView(PermissionRequiredMixin, generic.UpdateView):
         form.fields.queryset = self.model.objects.all()
         return form
 
-    def get_context_data(self, **kwargs):
-        context = super(UpdateObjectView, self).get_context_data(**kwargs)
-        context['object'] = self.model.objects.filter(id=self.kwargs.get('object_id'))
-        context['model_id'] = self.kwargs.get('pk')
-        context['model_name'] = self.kwargs.get('model_name')
-        context['model_app'] = self.kwargs.get('app_name')
-        print(self.kwargs.get('object_id'))
-        return context
-
-    def get_object(self, queryset=None, **kwargs):
-        print(self.model.objects.get(id=self.kwargs['pk']))
-        obj = self.model.objects.get(id=self.kwargs['pk'])
+    def get_object(self, **kwargs):
+        obj = get_object_or_404(self.model.get_model(self.kwargs.get('app_name'), self.kwargs.get('model_name')),
+                                pk=self.kwargs['object_id'])
         return obj
-
 
 
 class DeleteObjectView(PermissionRequiredMixin, generic.DeleteView):
     model = MyAdminPanel
-    fields = '__all__'
     template_name = 'adminpanel/deleteview_model.html'
     success_url = reverse_lazy('list')
     permission_required = 'polls.can_delete_object'
 
-    def get_context_data(self, **kwargs):
-        context = super(DeleteObjectView, self).get_context_data(**kwargs)
-        context['object'] = self.model.get_model(self.kwargs.get('app_name'), self.kwargs.get('model_name'))\
-            .objects.filtr(id=self.kwargs.get('object_id'))
-        context['model_id'] = self.kwargs.get('pk')
-        context['model_name'] = self.kwargs.get('model_name')
-        context['model_app'] = self.kwargs.get('app_name')
-        print(self.kwargs)
-        print('sgadgrgdvzd')
-        return context
+    def get_object(self, **kwargs):
+        obj = get_object_or_404(self.model.get_model(self.kwargs.get('app_name'), self.kwargs.get('model_name')),
+                                pk=self.kwargs['object_id'])
+        return obj
