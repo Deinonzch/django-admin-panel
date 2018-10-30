@@ -4,7 +4,7 @@
             <ul>
                 {% for model in model_list %}
                     {% if model.app_name == app.app_name %}
-                        <li><a href="{% url 'adminpanel:index' %}">{{ model.model_name }}</a></li>
+                        <li><a href="{% url 'adminpanel:view_model' model.id model.app_name model.model_name %}">{{ model.model_name }}</a></li>
                     {% endif %}
                 {% endfor %}
             </ul>
