@@ -2,7 +2,6 @@
     <ul>
         {% for object in objects_list %}
             <li><a href="{% url 'adminpanel:updateview_model' model_id model_app model_name object.id %}">{{ object }}</a></li>
-            {{ object.id }}
             <form action="{% url 'adminpanel:deleteview_model' model_id model_app model_name object.id %}" method="post">
                 {% csrf_token %}
                 <button type="submit">Delete</button>
